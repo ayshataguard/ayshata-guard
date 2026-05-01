@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ayshata Guard — Check Before You Connect</title>
+  <meta name="description" content="Ayshata Guard is an AI-powered onchain safety and scout network for crypto users. Check airdrops, testnets, campaigns, and new tokens before you ape in." />
+  <style>
+    :root {
+      --bg: #070914;
+      --bg2: #10162a;
+      --card: rgba(255,255,255,0.07);
+      --card2: rgba(255,255,255,0.11);
+      --text: #f6f7ff;
+      --muted: #aab2d5;
+      --line: rgba(255,255,255,0.12);
+      --pink: #ff4fd8;
+      --cyan: #44f4ff;
+      --green: #74ffb5;
+      --yellow: #ffe66d;
+      --danger: #ff6b8b;
+      --shadow: 0 24px 80px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,79,216,.22), transparent 32%),
+        radial-gradient(circle at 80% 0%, rgba(68,244,255,.17), transparent 34%),
+        radial-gradient(circle at 50% 90%, rgba(116,255,181,.11), transparent 35%),
+        linear-gradient(180deg, var(--bg) 0%, #090d18 50%, #060710 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    .noise {
+      position: fixed; inset: 0; pointer-events: none; opacity: .055; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+    .wrap { position: relative; z-index: 1; width: min(1120px, calc(100% - 36px)); margin: 0 auto; }
+    nav {
+      display: flex; justify-content: space-between; align-items: center; padding: 22px 0;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; letter-spacing: .04em; }
+    .logo {
+      width: 46px; height: 46px; border-radius: 14px;
+      object-fit: cover; box-shadow: 0 0 30px rgba(68,244,255,.28);
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+    }
+    .logo-fallback { width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, var(--pink), var(--cyan)); display: grid; place-items: center; color: #05060d; font-weight: 950; }
+    .navlinks { display: flex; gap: 18px; color: var(--muted); font-size: 14px; }
+    .navlinks a:hover { color: var(--text); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 18px; border-radius: 999px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.08); color: var(--text); font-weight: 800;
+      box-shadow: 0 10px 28px rgba(0,0,0,.2); cursor: pointer; transition: .2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); background: rgba(255,255,255,.13); }
+    .btn.primary { border: none; color: #05060d; background: linear-gradient(135deg, var(--green), var(--cyan)); }
+    .hero { padding: 76px 0 58px; display: grid; grid-template-columns: 1.05fr .95fr; gap: 42px; align-items: center; }
+    .badge {
+      display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px;
+      color: var(--muted); background: rgba(255,255,255,.06); font-size: 13px; font-weight: 700;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--green); box-shadow: 0 0 14px var(--green); }
+    h1 { margin: 20px 0 18px; font-size: clamp(44px, 8vw, 86px); line-height: .92; letter-spacing: -.07em; }
+    .grad { background: linear-gradient(135deg, var(--pink), var(--cyan), var(--green)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { font-size: clamp(18px, 2vw, 22px); line-height: 1.6; color: var(--muted); max-width: 640px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 34px; }
+    .stat { border: 1px solid var(--line); background: rgba(255,255,255,.055); border-radius: 20px; padding: 16px; }
+    .stat strong { display: block; font-size: 24px; }
+    .stat span { color: var(--muted); font-size: 13px; }
+    .brand-visual { padding: 28px 28px 0; display: grid; place-items: center; }
+    .brand-visual img { width: min(360px, 82%); border-radius: 32px; filter: drop-shadow(0 0 34px rgba(68,244,255,.26)); }
+    .terminal-card {
+      border: 1px solid var(--line); border-radius: 30px; background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.055));
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .bar { display: flex; align-items: center; gap: 8px; padding: 16px 18px; border-bottom: 1px solid var(--line); background: rgba(0,0,0,.18); }
+    .circle { width: 11px; height: 11px; border-radius: 50%; background: var(--danger); }
+    .circle:nth-child(2){ background: var(--yellow); } .circle:nth-child(3){ background: var(--green); }
+    .screen { padding: 24px; }
+    .scan-title { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+    .risk { font-size: 54px; font-weight: 950; letter-spacing: -.05em; color: var(--yellow); }
+    .codebox { margin-top: 16px; padding: 16px; border-radius: 18px; background: rgba(0,0,0,.28); color: #d7dcff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.7; border: 1px solid rgba(255,255,255,.08); }
+    section { padding: 64px 0; }
+    .section-head { max-width: 740px; margin-bottom: 28px; }
+    .section-head h2 { font-size: clamp(32px, 5vw, 54px); line-height: 1; letter-spacing: -.05em; margin: 0 0 14px; }
+    .section-head p { color: var(--muted); font-size: 18px; line-height: 1.6; margin: 0; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { border: 1px solid var(--line); background: var(--card); border-radius: 26px; padding: 24px; box-shadow: 0 16px 45px rgba(0,0,0,.16); }
+    .card h3 { margin: 0 0 10px; font-size: 20px; }
+    .card p, .card li { color: var(--muted); line-height: 1.6; }
+    .icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; background: rgba(68,244,255,.12); margin-bottom: 16px; }
+    .checker { display: grid; grid-template-columns: .95fr 1.05fr; gap: 18px; align-items: stretch; }
+    form { display: grid; gap: 12px; }
+    label { color: var(--muted); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    input, textarea, select {
+      width: 100%; padding: 14px 15px; border-radius: 16px; border: 1px solid var(--line);
+      background: rgba(5,6,13,.68); color: var(--text); outline: none; font: inherit;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { border-color: rgba(68,244,255,.8); box-shadow: 0 0 0 4px rgba(68,244,255,.08); }
+    .result { min-height: 100%; }
+    .pill { display: inline-flex; padding: 7px 10px; border-radius: 999px; background: rgba(255,230,109,.12); color: var(--yellow); border: 1px solid rgba(255,230,109,.25); font-weight: 900; font-size: 13px; }
+    .result h3 { font-size: 28px; margin: 16px 0 8px; }
+    .list { display: grid; gap: 8px; margin: 14px 0; padding: 0; list-style: none; }
+    .list li { padding-left: 22px; position: relative; color: var(--muted); }
+    .list li:before { content: "✦"; position: absolute; left: 0; color: var(--cyan); }
+    .roadmap { display: grid; gap: 12px; }
+    .phase { display: grid; grid-template-columns: 110px 1fr; gap: 16px; padding: 18px; border: 1px solid var(--line); border-radius: 22px; background: rgba(255,255,255,.055); }
+    .phase strong { color: var(--green); }
+    .footer { padding: 36px 0 48px; border-top: 1px solid var(--line); color: var(--muted); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .small { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    @media (max-width: 860px) {
+      .hero, .checker { grid-template-columns: 1fr; }
+      .grid3, .stats { grid-template-columns: 1fr; }
+      .navlinks { display: none; }
+      .phase { grid-template-columns: 1fr; }
+    }
+  
+    [hidden], .netlify-detect-form { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; pointer-events: none !important; position: absolute !important; left: -9999px !important; }
+
+  </style>
+</head>
+<body>
+<div class="noise"></div>
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="#top"><img class="logo" src="assets/logo.png" alt="Ayshata Guard logo" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=&quot;logo-fallback&quot;>A</span>')"/><span>AYSHATA GUARD</span></a>
+      <div class="navlinks">
+        <a href="#checker">Risk Checker</a>
+        <a href="#scouts">Scouts</a>
+        <a href="#roadmap">Roadmap</a>
+      </div>
+      <a class="btn" href="#scouts">Join Scouts</a>
+    </nav>
+
+    <main id="top" class="hero">
+      <div>
+        <div class="badge"><span class="dot"></span> Building on Base · Early Scout Phase</div>
+        <h1>Check before <span class="grad">you connect.</span></h1>
+        <p class="lead">Ayshata Guard is an AI-powered onchain safety and scout network for checking airdrops, testnets, campaigns, and new tokens before you risk your wallet.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#checker">Try Risk Checker</a>
+          <a class="btn" href="#scouts">Become Early Scout</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong>AI</strong><span>Risk Signals</span></div>
+          <div class="stat"><strong>Scout</strong><span>Community Reports</span></div>
+          <div class="stat"><strong>$AYSHA</strong><span>Future Community Layer</span></div>
+        </div>
+      </div>
+      <div class="terminal-card hero-logo-card">
+        <div class="brand-visual">
+          <img src="assets/logo.png" alt="Ayshata Guard logo" onerror="this.style.display='none'" />
+        </div>
+        <div class="screen">
+          <div class="scan-title"><span>AYSHATA_SCAN.EXE</span><span>SAMPLE REPORT</span></div>
+          <div class="risk">MEDIUM RISK</div>
+          <div class="codebox">
+            Project: ExampleDrop<br>
+            Chain: Base<br>
+            Task: Join waitlist + test app<br><br>
+            Red Flags: new domain, unclear payout, limited docs<br>
+            Safe Action: use burner wallet, no deposit, wait for official update
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <section>
+      <div class="section-head">
+        <h2>Too many fake drops. Too many drainers.</h2>
+        <p>Ayshata Guard helps users slow down, check the signals, and take safer actions before connecting wallets or joining suspicious campaigns.</p>
+      </div>
+      <div class="grid3">
+        <div class="card"><div class="icon">🛡️</div><h3>AI Risk Checker</h3><p>Submit a project, website, X profile, chain, and task. Ayshata returns risk score, red flags, positive signs, and safe action.</p></div>
+        <div class="card"><div class="icon">🔎</div><h3>Scout Network</h3><p>Community scouts submit fresh airdrops, testnets, campaigns, and suspicious links for review.</p></div>
+        <div class="card"><div class="icon">⚡</div><h3>Tester Board</h3><p>A curated board for early opportunities, beta apps, and tester missions with clear safety notes.</p></div>
+      </div>
+    </section>
+
+    <section id="checker">
+      <div class="section-head">
+        <h2>Risk Checker MVP</h2>
+        <p>Simple input. Practical output. Drop the project context and let Ayshata surface the safety signals.</p>
+      </div>
+      <div class="checker">
+        <div class="card">
+          <form id="riskForm">
+            <div>
+              <label for="project">Project name</label>
+              <input id="project" placeholder="Example: Mokee Guard" />
+            </div>
+            <div>
+              <label for="website">Website</label>
+              <input id="website" placeholder="https://example.xyz" />
+            </div>
+            <div>
+              <label for="twitter">X/Twitter</label>
+              <input id="twitter" placeholder="@projecthandle or https://x.com/..." />
+            </div>
+            <div>
+              <label for="chain">Chain</label>
+              <input id="chain" placeholder="Base, Solana, Ethereum, BSC..." />
+            </div>
+            <div>
+              <label for="task">Task</label>
+              <textarea id="task" placeholder="What does the user need to do?"></textarea>
+            </div>
+            <button class="btn primary" type="submit">Run Risk Check</button>
+          </form>
+        </div>
+        <div class="card result" id="result">
+          <span class="pill">SAMPLE OUTPUT</span>
+          <h3>Risk Score: Medium</h3>
+          <ul class="list">
+            <li>Website and social profile need verification.</li>
+            <li>Check if the task asks for wallet connect, signature, or private info.</li>
+            <li>Use a burner wallet if testing is required.</li>
+          </ul>
+          <p class="small"><strong>Verdict:</strong> Worth reviewing, but do not use a main wallet or deposit funds until signals are stronger.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="scouts">
+      <div class="section-head">
+        <h2>Early Scout Program</h2>
+        <p>We’re looking for early scouts who find fresh Web3 opportunities, flag suspicious links, and help build public risk reports.</p>
+      </div>
+      <div class="grid3">
+        <div class="card"><h3>Scout</h3><p>Submit fresh airdrops, testnets, new token launches, and campaign links.</p></div>
+        <div class="card"><h3>Tester</h3><p>Test simple app flows with burner wallets and submit clean feedback.</p></div>
+        <div class="card"><h3>Researcher</h3><p>Help verify socials, docs, launch dates, and red flags before the crowd apes.</p></div>
+      </div>
+
+      <div class="checker" style="margin-top:18px;">
+        <div class="card">
+          <h3 style="margin-top:0;">Join Early Scout Waitlist</h3>
+          <p class="small">Follow Ayshata Guard on X, submit your handle, and choose your role. Email and EVM address are required so we can verify scout entries and send role updates.</p>
+          <form name="early-scout" method="POST" netlify data-netlify="true" data-netlify-honeypot="bot-field" action="/success.html">
+            <input type="hidden" name="form-name" value="early-scout" />
+            <p style="display:none;">
+              <label>Don’t fill this out: <input name="bot-field" /></label>
+            </p>
+            <div>
+              <label for="scout-x">X/Twitter handle *</label>
+              <input id="scout-x" name="x_handle" placeholder="@yourhandle" required />
+            </div>
+            <div>
+              <label for="scout-role">Role *</label>
+              <select id="scout-role" name="role" required>
+                <option value="">Choose your role</option>
+                <option value="Scout">Scout</option>
+                <option value="Tester">Tester</option>
+                <option value="Researcher">Researcher</option>
+              </select>
+            </div>
+            <div>
+              <label for="scout-email">Email *</label>
+              <input id="scout-email" name="email" type="email" placeholder="you@example.com" / required>
+            </div>
+            <div>
+              <label for="scout-wallet">EVM address *</label>
+              <input id="scout-wallet" name="evm_address" placeholder="0x..." / required>
+            </div>
+            <button class="btn primary" type="submit">Join Waitlist</button>
+          </form>
+        </div>
+        <div class="card result">
+          <span class="pill">WAITLIST RULES</span>
+          <h3>Early Scouts</h3>
+          <ul class="list">
+            <li>Follow Ayshata Guard on X.</li>
+            <li>Submit real X handle only.</li>
+            <li>Use burner wallets when testing any app.</li>
+            <li>Never share seed phrase, private key, OTP, or password.</li>
+          </ul>
+          <p class="small"><strong>Note:</strong> Joining the waitlist does not guarantee rewards, allocation, or token benefits. It only helps us organize early scouts and testers.</p>
+        </div>
+      </div>
+
+      <p class="small" style="margin-top:18px;">No seed phrase. No private key. No deposit required. Ayshata gives risk signals, not financial advice.</p>
+    </section>
+
+    <section id="roadmap">
+      <div class="section-head">
+        <h2>Roadmap</h2>
+        <p>Keep it simple first. Build trust before token hype.</p>
+      </div>
+      <div class="roadmap">
+        <div class="phase"><strong>Phase 1</strong><div>Brand, website, X account, early scout waitlist.</div></div>
+        <div class="phase"><strong>Phase 2</strong><div>Risk Checker beta with public example reports.</div></div>
+        <div class="phase"><strong>Phase 3</strong><div>Scout submissions, leaderboard, tester board.</div></div>
+        <div class="phase"><strong>Phase 4</strong><div>$AYSHA community launch after traction and clear utility.</div></div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>© 2026 Ayshata Guard · Built for onchain scouts.</div>
+      <div>Check before you connect. DYOR.</div>
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('riskForm');
+    const result = document.getElementById('result');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const project = document.getElementById('project').value || 'Unknown Project';
+      const website = document.getElementById('website').value || 'No website provided';
+      const twitter = document.getElementById('twitter').value || 'No X/Twitter provided';
+      const chain = document.getElementById('chain').value || 'Unknown chain';
+      const task = document.getElementById('task').value || 'No task details provided';
+      const risk = [website, twitter, task].join(' ').toLowerCase().includes('connect') ? 'Medium / High' : 'Medium';
+      result.innerHTML = `
+        <span class="pill">MOCK RESULT</span>
+        <h3>Risk Score: ${risk}</h3>
+        <p class="small"><strong>Project:</strong> ${escapeHtml(project)}<br><strong>Chain:</strong> ${escapeHtml(chain)}<br><strong>Task:</strong> ${escapeHtml(task)}</p>
+        <ul class="list">
+          <li>Verify official website and X/Twitter before joining.</li>
+          <li>Check domain age, community activity, and whether the task requires wallet signing.</li>
+          <li>Never share seed phrase, private key, OTP, or wallet password.</li>
+        </ul>
+        <p class="small"><strong>Safe Action:</strong> Use a burner wallet, avoid deposits, and wait for stronger official signals.</p>
+        <p class="small"><strong>Verdict:</strong> Review further before joining. This MVP output is a demo, not financial advice.</p>
+      `;
+    });
+
+    const scoutForm = document.querySelector('form[name="early-scout"]:not(.netlify-detect-form)');
+    if (scoutForm) {
+      scoutForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!scoutForm.checkValidity()) { scoutForm.reportValidity(); return; }
+        const btn = scoutForm.querySelector('button[type="submit"]');
+        const oldText = btn ? btn.textContent : '';
+        if (btn) { btn.textContent = 'Joining...'; btn.disabled = true; }
+        const data = new FormData(scoutForm);
+        try {
+          const res = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(data).toString()
+          });
+          if (!res.ok) throw new Error('Form submit failed: ' + res.status);
+          window.location.href = '/success.html';
+        } catch (err) {
+          alert('Submission failed. Please try again or DM Ayshata Guard on X.');
+          if (btn) { btn.textContent = oldText; btn.disabled = false; }
+          console.error(err);
+        }
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+  </script>
+
+  <form name="early-scout" method="POST" netlify data-netlify="true" data-netlify-honeypot="bot-field" class="netlify-detect-form" aria-hidden="true">
+    <input type="hidden" name="form-name" value="early-scout" />
+    <input type="hidden" name="bot-field" />
+    <input type="hidden" name="x_handle" />
+    <input type="hidden" name="role" />
+    <input type="hidden" name="email" />
+    <input type="hidden" name="evm_address" />
+  </form>
+
+</body>
+</html>
